@@ -19,6 +19,10 @@ async function show(req, res) {
         where: {
             slug: slug,
         },
+        include: {
+            category: true,
+            tags: true
+        }
     });
 
     if (!data) {
@@ -32,17 +36,49 @@ async function store(req, res) {
     const datiInIngresso = req.body;
 
     // Genera lo slug dal titolo
-    const slug = datiInIngresso.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\s-]/g, '');
+    let baseSlug = datiInIngresso.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\s-]/g, '');
+
+    // Verifica se lo slug è già presente nel database
+    let existingSlug = await slugExists(baseSlug);
+
+    // Se lo slug esiste già, aggiungi un numero alla fine
+    let counter = 1;
+    let slug = baseSlug;
+    while (existingSlug) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+        existingSlug = await slugExists(slug);
+    }
+
+    // Lo slug è ora unico, si procede con la creazione del post
     const newPost = await prisma.post.create({
         data: {
             title: datiInIngresso.title,
             image: datiInIngresso.image,
             slug: slug,
             content: datiInIngresso.content,
-        }
+            tags: {
+                connect: datiInIngresso.tags.map((idTags) => ({
+                    id: idTags,
+                })),
+            },
+        },
+        include: {
+            category: true,
+            tags: true
+        },
     })
 
     return res.json(newPost);
+}
+
+async function slugExists(slug) {
+    const existingSlug = await prisma.post.findUnique({
+        where: {
+            slug: slug,
+        },
+    });
+    return existingSlug !== null;
 }
 
 async function update(req, res) {
