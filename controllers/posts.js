@@ -4,7 +4,8 @@ const prisma = new PrismaClient();
 async function index(req, res) {
     const data = await prisma.post.findMany({
         include: {
-            category: true
+            category: true,
+            tags: true
         },
     });
 
