@@ -1,5 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { validationResult } = require("express-validator");
+const ValidationError = require("../exceptions/ValidationError");
 
 async function index(req, res) {
     const data = await prisma.post.findMany({
@@ -33,7 +35,23 @@ async function show(req, res) {
     return res.json(data);
 }
 
-async function store(req, res) {
+async function store(req, res, next) {
+
+    const validation = validationResult(req);
+
+    // isEmpty si riferisce all'array degli errori di validazione.
+    // Se NON è vuoto, vuol dire che ci sono errori
+    if (!validation.isEmpty()) {
+        /* return res.status(400).json({
+          message: "Controllare i dati inseriti",
+          errors: validation.array(),
+        }); */
+
+        return next(
+            new ValidationError("Controllare i dati inseriti", validation.array())
+        );
+    }
+
     const datiInIngresso = req.body;
 
     // Genera lo slug dal titolo
