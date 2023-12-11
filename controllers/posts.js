@@ -78,7 +78,7 @@ async function store(req, res, next) {
             content: datiInIngresso.content,
             tags: {
                 connect: datiInIngresso.tags.map((idTags) => ({
-                    id: idTags,
+                    id: +idTags,
                 })),
             },
         },
