@@ -4,12 +4,14 @@ const postsRouter = require("./routers/posts");
 const categoriesRouter = require("./routers/categories");
 const tagsRouter = require("./routers/tags");
 
-
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
 dotenv.config();
 
+// Abilita CORS per tutte le route
+app.use(cors());
 // application/json
 app.use(express.json());
 
