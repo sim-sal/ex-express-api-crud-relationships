@@ -76,6 +76,9 @@ async function store(req, res, next) {
             image: datiInIngresso.image,
             slug: slug,
             content: datiInIngresso.content,
+            category: {
+                connect: { id: +datiInIngresso.category }
+            },
             tags: {
                 connect: datiInIngresso.tags.map((idTags) => ({
                     id: +idTags,

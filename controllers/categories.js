@@ -1,6 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+async function index(req, res) {
+    const categories = await prisma.category.findMany();
+    return res.json(categories);
+}
+
 async function store(req, res) {
     const datiInIngresso = req.body;
 
@@ -59,5 +64,6 @@ async function store(req, res) {
 }
 
 module.exports = {
-    store,
+    index,
+    store
 };
